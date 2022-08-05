@@ -1,4 +1,2 @@
-# assessment
-あなたのいいところ診断ゲーム
-
-[https://raitochinyu.github.io/assessment/](https://raitochinyu.github.io/assessment/)
+## assessment
+「あなたのいいところ診断ゲーム」は、[こちらへ](https://raitochinyu.github.io/assessment/assessment.html)

@@ -1,6 +1,70 @@
 'use strict'
+const userNameInput = document.getElementById('user-name')
+const assessmentButton = document.getElementById('assessment')
+const resultDivided = document.getElementById('result-area')
+const tweetDivided = document.getElementById('tweet-area')
+
+// TODO: エンターを押したら診断結果を表示
+userNameInput.onkeydown = event => {
+    if (event.key === 'Enter') {
+        assessmentButton.onclick()
+    }
+}
+
+assessmentButton.onclick = () => {
+    const userName = userNameInput.value
+    if (userName.length === 0) {
+        // 名前が空の時は処理を終了する
+        return
+    }
+
+    // 診断結果表示エリアの作成
+    resultDivided.innerText = ''
+
+    // headerDivided の作成
+    const headerDivided = document.createElement('div');
+    headerDivided.setAttribute('class', 'card-header');
+    headerDivided.innerText = '診断結果';
+
+    // bodyDivided の作成
+    const bodyDivided = document.createElement('div');
+    bodyDivided.setAttribute('class', 'card-body');
+
+    const paragraph = document.createElement('p');
+    paragraph.setAttribute('class', 'card-text');
+    const result = assessment(userName);
+    paragraph.innerText = result;
+    bodyDivided.appendChild(paragraph);
+
+    // resultDivided に Bootstrap のスタイルを適用する
+    resultDivided.setAttribute('class', 'card');
+    resultDivided.setAttribute('style', 'max-width: 700px;')
+
+    // headerDivided と bodyDivided を resultDivided に差し込む
+    resultDivided.appendChild(headerDivided);
+    resultDivided.appendChild(bodyDivided);
+
+    // ツイートエリアの作成
+    tweetDivided.innerText = ''
+    const anchor = document.createElement('a')
+    const hrefValue =
+        'https://twitter.com/intent/tweet?button_hashtag=' +
+        encodeURIComponent('あなたのいいところ') +
+        '&ref_src=twsrc%5Etfw'
+    anchor.setAttribute('href', hrefValue)
+    anchor.setAttribute('class', 'twitter-hashtag-button')
+    anchor.setAttribute('data-text', result)
+    anchor.innerText = 'Tweet #あなたのいいところ'
+    tweetDivided.appendChild(anchor)
+
+    // widgets.js の設定
+    const script = document.createElement('script')
+    script.setAttribute('src', 'https://platform.twitter.com/widgets.js')
+    tweetDivided.appendChild(script)
+};
+
 const answers = [
-    '{userName}のいいところは声です。{userName}の特徴的な声は皆を惹きつけ、心に残ります。',
+    '{userName}のいいところは声です。{userName}の特徴的な声はみなを惹きつけ、心に残ります。',
     '{userName}のいいところはまなざしです。{userName}に見つめられた人は、気になって仕方がないでしょう。',
     '{userName}のいいところは情熱です。{userName}の情熱に周りの人は感化されます。',
     '{userName}のいいところは厳しさです。{userName}の厳しさがものごとをいつも成功に導きます。',
@@ -20,13 +84,31 @@ const answers = [
 
 /**
  * 名前の文字列を渡すと診断結果を返す関数
- * @param {string} userName ユーザーの名前
+ * @param {string} userName ユーザの名前
  * @return {string} 診断結果
  */
-/* TODO: 上のコメントは、JSdocという
-詳しくは：https://qiita.com/tarotaro1129/items/c7b742f3602c7749a29d
-*/
 function assessment(userName) {
-    // TODO: 診断処理をする
-    return ''
+    // 全文字のコード番号を取得してそれを足し合わせる
+    let sumOfCharCode = 0
+    for (let i = 0; i < userName.length; i++) {
+        sumOfCharCode = sumOfCharCode + userName.charCodeAt(i)
+    }
+
+    // 文字のコード番号の合計を回答の数で割って添字の数値を求める
+    const index = sumOfCharCode % answers.length
+    let result = answers[index]
+
+    result = result.replaceAll('{userName}', userName)
+    return result
 }
+
+// テストコード
+console.assert(
+    assessment('太郎') ===
+    '太郎のいいところは決断力です。太郎がする決断にいつも助けられる人がいます。',
+    '診断結果の文言の特定の部分を名前に置き換える処理が正しくありません。'
+)
+console.assert(
+    assessment('太郎') === assessment('太郎'),
+    '入力が同じ名前なら同じ診断結果を出力する処理が正しくありません。'
+)
